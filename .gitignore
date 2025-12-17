@@ -1,0 +1,60 @@
+# ------------------------------------------------
+# 1. PYTHON & SYSTÈME (Classique)
+# ------------------------------------------------
+# Byte-compiled / Optimised files (Fichiers temporaires Python)
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Fichiers systèmes Mac/Windows inutiles
+.DS_Store
+Thumbs.db
+
+# ------------------------------------------------
+# 2. SÉCURITÉ & ENVIRONNEMENT (CRITIQUE)
+# ------------------------------------------------
+# Variables d'environnement (Mots de passe, Clés API)
+# NE JAMAIS COMMITER CE FICHIER
+.env
+.env.local
+
+# Environnements Virtuels
+venv/
+env/
+.venv/
+RHvenv/
+
+# ------------------------------------------------
+# 3. MACHINE LEARNING & DATA (Gros fichiers)
+# ------------------------------------------------
+# Datasets et données brutes (Eviter de saturer Git)
+*.csv
+*.xlsx
+*.xls
+*.json
+# Si vous avez un dossier dédié aux données :
+data/
+datasets/
+
+# Modèles entraînés (Souvent > 100Mo)
+*.pkl
+*.joblib
+*.h5
+*.pt
+*.onnx
+# Si vous stockez les modèles dans un dossier :
+models/
+
+# Jupyter Notebook checkpoints (Dossiers parasites créés par Jupyter)
+.ipynb_checkpoints/
+
+# ------------------------------------------------
+# 4. BACKEND & IDE
+# ------------------------------------------------
+# Base de données locale (SQLite) pour FastAPI
+*.db
+*.sqlite3
+
+# Fichiers de configuration IDE (VS Code, Pycharm)
+.vscode/
+.idea/
