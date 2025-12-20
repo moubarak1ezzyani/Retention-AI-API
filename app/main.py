@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 import models, schemas, database, crud, security, services
 
 # Création des tables DB au démarrage (pour dev)
-models.Base.metadata.create_all(bind=database.engine)
+models.MyBase.metadata.create_all(bind=database.engine)
 
 app = FastAPI(title="RetentionAI API")
 
@@ -28,14 +28,15 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = security.jwt.decode(token, security.SECRET_KEY, algorithms=[security.ALGORITHM])
-        email: str = payload.get("sub")
-        if email is None:
+        payload = security.jwt.decode(token, security.secret_key, algorithms=[security.algo])
+        username: str = payload.get("sub")
+        if username is None:
             raise credentials_exception
     except security.JWTError:
         raise credentials_exception
         
-    user = crud.get_user_by_email(db, email=email)
+    token_data = schemas.TokenData(username=username) 
+    user = crud.get_user_by_username(db, username=token.username)
     if user is None:
         raise credentials_exception
     return user
@@ -44,15 +45,15 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
 
 @app.post("/register", response_model=schemas.UserOutput)
 def register(user: schemas.UserCreate, db: Session = Depends(database.get_db)):
-    db_user = crud.get_user_by_email(db, email=user.email)
+    db_user = crud.get_user_by_username(db, username=user.username)
     if db_user:
-        raise HTTPException(status_code=400, detail="Email déjà utilisé.")
+        raise HTTPException(status_code=400, detail="username déjà utilisé.")
     return crud.create_user(db=db, user=user)
 
 @app.post("/login", response_model=schemas.Token)
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(database.get_db)):
     # Note: OAuth2PasswordRequestForm met l'email dans .username
-    user = crud.get_user_by_email(db, email=form_data.username)
+    user = crud.get_user_by_username(db, username=form_data.username)
     if not user or not security.verify_password(form_data.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

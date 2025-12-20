@@ -4,7 +4,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.ext.declarative import declarative_base
 
-
 # Delcaration de var depuis env
 load_dotenv()
 db_url=os.getenv("db_url_env")

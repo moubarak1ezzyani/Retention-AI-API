@@ -1,38 +1,51 @@
 import os
 import joblib
 import pandas as pd
-import google.generativeai as genai
-from .schemas import EmployeeInput 
+# import google.genai as genai
+from google import genai  
+from schemas import EmployeeInput 
 from dotenv import load_dotenv 
 
-load_dotenv()
-
 # --- GEMINI SETUP ---
-GENAI_API_KEY = os.getenv("GENAI_API_KEY")
-if GENAI_API_KEY:
-    genai.configure(api_key=GENAI_API_KEY)
-    llm_model = genai.GenerativeModel('gemini-1.5-flash')
-else:
-    llm_model = None
-    print("⚠️ ATTENTION: Pas de clé API Gemini trouvée.")
+load_dotenv()
+genai_api_key = os.getenv("genai_api_key_env")
+
+# On crée un CLIENT au lieu de configurer globalement
+client = genai.Client(api_key=genai_api_key)
+
+# Pour appeler l'IA, on utilise client.models.generate_content
+def generate_analysis_with_gemini(prompt_text):
+    try:
+        response = client.models.generate_content(
+            model='gemini-1.5-flash',
+            contents=prompt_text
+        )
+        return response.text
+    except Exception as e:
+        print(f"Erreur Gemini: {e}")
+        return "Analyse indisponible."
 
 # --- ML MODEL SETUP ---
-MODEL_PATH = "model.pkl" 
+model_ml_name = ["RandomForestClassifier", "LogisticRegression"]
+
+for m in model_ml_name:
+    model_path = f"../models/{m}_model.pkl"
+
 pipeline = None
 
 try:
     # On essaye de charger le modèle
-    if os.path.exists(MODEL_PATH):
-        pipeline = joblib.load(MODEL_PATH)
+    if os.path.exists(model_path):
+        pipeline = joblib.load(model_path)
         print("✅ Modèle ML chargé avec succès.")
     else:
-        print(f"⚠️ Fichier {MODEL_PATH} introuvable. Mode Mock activé.")
+        print(f"⚠️ Fichier {model_path} introuvable. Mode Mock activé.")
 except Exception as e:
     print(f"❌ Erreur chargement modèle : {e}")
 
 # --- FONCTION GEMINI (Version Brute demandée) ---
 def generate_retention_plan(employee: EmployeeInput, churn_probability: float) -> str:
-    if not llm_model:
+    if not genai_api_key:
         return "Erreur: Clé API Gemini non configurée."
 
     prompt = f"""
@@ -51,7 +64,7 @@ def generate_retention_plan(employee: EmployeeInput, churn_probability: float) -
     """
 
     try:
-        response = llm_model.generate_content(prompt)
+        response = genai_api_key.generate_content(prompt)
         # RETOUR BRUT comme demandé
         return response.text 
     

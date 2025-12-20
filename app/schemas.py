@@ -4,7 +4,7 @@ from datetime import datetime
 
 # --- AUTH ---
 class UserBase(BaseModel):
-    email: EmailStr
+    username: str
 
 class UserCreate(UserBase):
     password: str
@@ -12,7 +12,6 @@ class UserCreate(UserBase):
 class UserOutput(UserBase):
     id: int
     created_at: datetime
-    
     model_config = ConfigDict(from_attributes=True)
 
 class Token(BaseModel):
@@ -20,7 +19,7 @@ class Token(BaseModel):
     token_type: str
 
 class TokenData(BaseModel):
-    email: Optional[str] = None
+    username: Optional[str] = None
 
 # --- ML INPUT ---
 # Fichier: app/schemas.py
