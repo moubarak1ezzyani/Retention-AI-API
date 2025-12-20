@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # Service 1 : Base de Données
+  db:
+    image: postgres:15
+    container_name: retention_db
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=adminpassword
+      - POSTGRES_DB=retention_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d retention_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Service 2 : Backend FastAPI
+  backend:
+    build: ./backend
+    container_name: retention_backend
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://admin:adminpassword@db:5432/retention_db
+      - SECRET_KEY=votre_super_secret_key_jwt
+      - GENAI_API_KEY=AIzaSyD...VOTRE_VRAIE_CLE_ICI...
+      - ACCESS_TOKEN_EXPIRE_MINUTES=30
+    ports:
+      - "8000:8000"
+    volumes:
+      # Permet le hot-reload si vous modifiez le code en local
+      - ./backend:/app
+
+  # Service 3 : Frontend Next.js
+  frontend:
+    build: ./frontend
+    container_name: retention_frontend
+    depends_on:
+      - backend
+    environment:
+      # Attention : Côté client (navigateur), localhost marche.
+      # Côté serveur (SSR), il faudrait utiliser http://backend:8000
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    ports:
+      - "3000:3000"
+
+volumes:
+  postgres_data:

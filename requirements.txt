@@ -1,7 +1,32 @@
+# --- Framework API & Serveur ---
+fastapi
+uvicorn
+python-multipart
+
+# --- Base de données (ORM & Driver Postgres) ---
+sqlalchemy
+psycopg2-binary
+
+# --- Authentification & Sécurité (JWT / Hash) ---
+python-jose[cryptography]
+passlib[bcrypt]
+
+# --- Gestion des variables d'environnement ---
+python-dotenv
+
+# --- Data Science & Machine Learning ---
 pandas
-numpy
+joblib
 scikit-learn
-matplotlib
-seaborn
+numpy
+
+# --- Intelligence Artificielle (Gemini) ---
+google-generativeai
+
+# --- Validation de données ---
+pydantic
+email-validator
+
+# --- Tests (Pour vos tests unitaires) ---
 pytest
-jupyter
+httpx
