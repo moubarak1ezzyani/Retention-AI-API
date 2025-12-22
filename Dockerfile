@@ -1,10 +1,10 @@
-# Utilisation d'une image Python légère
+# slim : image Python légère
 FROM python:3.10-slim
 
-# Définition du dossier de travail dans le conteneur
+# dossier de travail
 WORKDIR /app
 
-# Installation des dépendances système (nécessaire pour psycopg2-binary parfois)
+# Installation des dépendances système
 RUN apt-get update && apt-get install -y gcc libpq-dev && rm -rf /var/lib/apt/lists/*
 
 # Copie des fichiers de dépendances

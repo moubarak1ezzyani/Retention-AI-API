@@ -1,17 +1,36 @@
 import pytest
+import os
+import sys
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 from unittest.mock import MagicMock, patch
 
-# Importations depuis votre application
-from app.main import app
-from app.database import get_db, Base
-from app import services
+
 
 # --------------------------------------------------------
-# 1. CONFIGURATION DE LA BDD DE TEST (SQLite en mémoire)
+#   CONFGI PATH
+# --------------------------------------------------------
+# 1. On récupère le chemin du dossier courant (tests)
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+# 2. On remonte d'un cran pour obtenir le chemin de la racine (rep)
+root_dir = os.path.dirname(current_dir)
+
+# 3. On ajoute la racine aux chemins que Python surveille
+sys.path.append(root_dir)
+
+sys.path.append(os.path.join(root_dir, "app"))
+
+from app.main import app
+from app.database import get_db, MyBase
+from app import services, schemas
+
+
+
+# --------------------------------------------------------
+#   CONFIGURATION DE LA BDD DE TEST (SQLite en mémoire)
 # --------------------------------------------------------
 SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
 
@@ -22,10 +41,10 @@ engine = create_engine(
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# On crée les tables dans la BDD temporaire
-Base.metadata.create_all(bind=engine)
+# --- db temporaire :  creation tables  
+MyBase.metadata.create_all(bind=engine)
 
-# Surcharge de la dépendance get_db pour utiliser la BDD de test
+# --- get_db : overriding --> db de test
 def override_get_db():
     try:
         db = TestingSessionLocal()
@@ -38,36 +57,35 @@ app.dependency_overrides[get_db] = override_get_db
 client = TestClient(app)
 
 # --------------------------------------------------------
-# 2. LES TESTS
+#   TESTS
 # --------------------------------------------------------
 
 def test_read_main():
-    """Vérifie que l'API tourne"""
-    response = client.get("/")
+    response = client.get("/")      # homepage
     assert response.status_code == 200
-    assert response.json() == {"message": "RetentionAI API is running 🚀"}
+    assert response.json() == {"message": "RetentionAI API is running"}
 
+# --- sign Up
 def test_register_user():
-    """Test de création de compte"""
     response = client.post("/register", json={
-        "email": "testhr@company.com",
+        "username": "youssef",
         "password": "securepassword"
     })
     assert response.status_code == 200
     data = response.json()
-    assert data["email"] == "testhr@company.com"
+    assert data["username"] == "youssef"
     assert "id" in data
 
+# --- sign In
 def test_login_user():
-    """Test de login et récupération du JWT"""
-    # 1. Création
-    client.post("/register", json={"email": "login@test.com", "password": "123"})
+    # --- Création
+    client.post("/register", json={"username": "youssef", "password": "securepassword"})
     
-    # 2. Connexion
-    # Note: OAuth2 form envoie les données en Form-Data, pas en JSON pur
+    # --- Connexion
+    # OAuth2 : data => Form-Data, pas JSON pur
     response = client.post("/login", data={
-        "username": "login@test.com", 
-        "password": "123"
+        "username": "youssef", 
+        "password": "securepassword"
     })
     assert response.status_code == 200
     data = response.json()
@@ -75,27 +93,21 @@ def test_login_user():
     assert data["token_type"] == "bearer"
     return data["access_token"]
 
-# --- MOCKING DU ML ET DE GEMINI ---
+# --- mcoking : ML & gemini
+@patch("app.services.pipeline")    # ML joblib : simulation
+def test_predict_endpoint(mock_pipeline):
 
-@patch("app.services.model") # On simule le modèle ML chargé via joblib
-def test_predict_endpoint(mock_model):
-    """
-    Test de la prédiction avec Mock.
-    On fait croire à l'appli que le modèle existe et prédit '1' (Départ).
-    """
-    # On configure le Mock pour qu'il réponde toujours [1] (Départ)
-    mock_model.predict.return_value = [1]
+    # ML : exists & pred = 1
+    mock_pipeline.predict.return_value = [1]
     
-    # Si vous avez géré le predict_proba dans services.py
-    # Il faut mocker aussi predict_proba s'il est utilisé
-    mock_model.predict_proba.return_value = [[0.2, 0.8]] # 80% de chance de départ
+    mock_pipeline.predict_proba.return_value = [[0.2, 0.8]]    # départ : 80% de chance  
 
-    # Authentification requise
+    # Auth requise
     token = test_login_user()
     
     payload = {
         "EmployeeNumber": 100,
-        "Age": 30,
+        # "Age": 30,
         "Department": "Sales",
         "JobRole": "Manager",
         "BusinessTravel": "Travel_Rarely",
@@ -122,26 +134,25 @@ def test_predict_endpoint(mock_model):
     # Vérifications
     assert "prediction" in data
     assert "probability" in data
-    # Comme on a mocké proba à 0.8, on attend 0.8
+
+    # mocké proba=0.8 --> pred=0.8 (attendu)
     assert data["probability"] == 0.8 
 
-@patch("app.services.llm_model") # On simule Gemini
+@patch("app.services.client")        # Gemini : simulation
 def test_generate_plan(mock_gemini):
-    """
-    Test de la génération IA sans payer Google.
-    """
-    # Authentification
+
+    # Auth
     token = test_login_user()
 
-    # On configure le Mock pour renvoyer un faux objet réponse
+    # Mock : config --> fake obj resp
     mock_response = MagicMock()
-    mock_response.text = "Action 1: Augmentation.\nAction 2: Formation."
+    mock_response.text = " Action 1: Augmentation.\n Action 2: Formation."
     mock_gemini.generate_content.return_value = mock_response
 
     payload = {
         "employee_data": {
             "EmployeeNumber": 101,
-            "Age": 45,
+            # "Age": 45,
             "Department": "R&D",
             "JobRole": "Scientist",
             "BusinessTravel": "Non-Travel",
@@ -167,4 +178,4 @@ def test_generate_plan(mock_gemini):
     assert response.status_code == 200
     data = response.json()
     assert "plan" in data
-    assert "Action 1" in data["plan"] # On vérifie qu'on reçoit bien le texte brut
+    assert "Action 1" in data["plan"]   # imposer le texte brut

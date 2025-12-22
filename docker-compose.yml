@@ -1,14 +1,14 @@
 version: '3.8'
 
 services:
-  # Service 1 : Base de Données
+  # --- Base de Données
   db:
     image: postgres:15
     container_name: retention_db
     environment:
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=adminpassword
-      - POSTGRES_DB=retention_db
+      - POSTGRES_USER=${db_user_env}
+      - POSTGRES_PASSWORD=${db_password_env}
+      - POSTGRES_DB=${db_name_env}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
@@ -19,33 +19,31 @@ services:
       timeout: 5s
       retries: 5
 
-  # Service 2 : Backend FastAPI
+  # Backend FastAPI
   backend:
-    build: ./backend
+    build: ./RetentionAI---Pr-dicteur-de-D-part-Assistant-RH-_BackEnd
     container_name: retention_backend
     depends_on:
       db:
         condition: service_healthy
     environment:
-      - DATABASE_URL=postgresql://admin:adminpassword@db:5432/retention_db
-      - SECRET_KEY=votre_super_secret_key_jwt
-      - GENAI_API_KEY=AIzaSyD...VOTRE_VRAIE_CLE_ICI...
-      - ACCESS_TOKEN_EXPIRE_MINUTES=30
+      - DATABASE_URL=${db_url_env}
+      - SECRET_KEY=${secret_key_env}
+      - GENAI_API_KEY=${genai_api_key_env}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${access_token_expire_minutes_env}
     ports:
       - "8000:8000"
     volumes:
       # Permet le hot-reload si vous modifiez le code en local
-      - ./backend:/app
+      - ./RetentionAI---Pr-dicteur-de-D-part-Assistant-RH-_BackEnd:/app
 
-  # Service 3 : Frontend Next.js
+  # --- Frontend Next.js
   frontend:
-    build: ./frontend
+    build: ./RetentionAI---Pr-dicteur-de-D-part-Assistant-RH_Frontend
     container_name: retention_frontend
     depends_on:
       - backend
     environment:
-      # Attention : Côté client (navigateur), localhost marche.
-      # Côté serveur (SSR), il faudrait utiliser http://backend:8000
       - NEXT_PUBLIC_API_URL=http://localhost:8000
     ports:
       - "3000:3000"

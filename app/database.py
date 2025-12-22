@@ -17,7 +17,7 @@ MyBase=declarative_base()
 def get_db():
     db=SessionLocal()
     try:
-        yield db 
+        yield db    # return : j'attends
     finally:
         db.close()
  
