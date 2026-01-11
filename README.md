@@ -1,4 +1,4 @@
-# 🧠 RetentionAI - Prédicteur de Départ & Assistant RH
+# 🧠 Retention AI API
 
 ![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.95+-009688.svg)
@@ -6,7 +6,13 @@
 ![Docker](https://img.shields.io/badge/Docker-Available-2496ED.svg)
 ![Machine Learning](https://img.shields.io/badge/AI-Scikit--Learn-orange.svg)
 
-**RetentionAI** est une application fullstack d’aide à la décision pour les départements Ressources Humaines. Elle combine l'apprentissage supervisé (Machine Learning) pour prédire le risque de démission d'un employé et l'IA générative pour proposer des plans de rétention personnalisés.
+> **Moteur intelligent d'aide à la décision RH combinant prédiction et prescription.**
+
+## 🔗 Interface Utilisateur
+Ce backend alimente le tableau de bord RH disponible ici :
+👉 **[Retention-Decision-Dashboard](https://github.com/moubarak1ezzyani/Retention-Decision-Dashboard.git)**
+
+**Retention AI API** est une application fullstack d’aide à la décision pour les départements Ressources Humaines. Elle combine l'apprentissage supervisé (Machine Learning) pour prédire le risque de démission d'un employé et l'IA générative pour proposer des plans de rétention personnalisés.
 
 ---
 
