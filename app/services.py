@@ -64,7 +64,7 @@ def generate_retention_plan(employee: EmployeeInput, churn_probability: float) -
     """
 
     try:
-        response = genai_api_key.generate_content(
+        response = client.models.generate_content(
             model='gemini-1.5-flash',
             contents=prompt
         )

@@ -69,7 +69,7 @@ def predict(
     employee_data: schemas.EmployeeInput, 
     current_user: models.UserDB = Depends(get_current_user),
     db: Session = Depends(database.get_db)
-):
+):  
     # call ML serivce
     prediction, probability = services.predict_attrition(employee_data)
     
