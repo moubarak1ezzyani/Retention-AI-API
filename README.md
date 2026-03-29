@@ -1,4 +1,4 @@
-# 🧠 RetentionAI - Prédicteur de Départ & Assistant RH
+# 🧠 Retention AI API - Churn Predictor & HR Assistant
 
 ![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.95+-009688.svg)
@@ -6,195 +6,182 @@
 ![Docker](https://img.shields.io/badge/Docker-Available-2496ED.svg)
 ![Machine Learning](https://img.shields.io/badge/AI-Scikit--Learn-orange.svg)
 
-**RetentionAI** est une application fullstack d’aide à la décision pour les départements Ressources Humaines. Elle combine l'apprentissage supervisé (Machine Learning) pour prédire le risque de démission d'un employé et l'IA générative pour proposer des plans de rétention personnalisés.
+> **Intelligent HR decision support engine combining prediction and prescription.**
+
+## 🔗 User Interface
+This backend powers the HR dashboard available here:
+👉 **[Retention-Decision-Dashboard](https://github.com/moubarak1ezzyani/Retention-Decision-Dashboard.git)**
+
+**Retention AI** is a full-stack decision support application for Human Resources departments. It combines supervised learning (Machine Learning) to predict the risk of employee resignation with generative AI to propose personalized retention plans.
 
 ---
 
-## 📋 Contexte du Projet
+## 📋 Project Context
 
-Les directions RH font face à un coût élevé lié au turnover. Ce projet vise à passer d'une analyse *a posteriori* à une approche **prédictive** et **prescriptive**.
+HR departments face high costs related to employee turnover. This project aims to shift from an *a posteriori* analysis to a **predictive** and **prescriptive** approach.
 
-**Objectifs principaux :**
-1.  **Prédire** : Estimer la probabilité de départ d'un collaborateur (Churn Prediction).
-2.  **Agir** : Générer automatiquement un plan d'action personnalisé via une IA Générative (LLM).
-3.  **Industrialiser** : Exposer ces modèles via une API sécurisée et conteneurisée.
+**Main Objectives:**
+1.  **Predict**: Estimate the probability of an employee leaving (Churn Prediction).
+2.  **Act**: Automatically generate a personalized action plan via Generative AI (LLM).
+3.  **Industrialize**: Expose these models through a secure, containerized API.
 
 ---
 
 ## 🛠️ Architecture & Technologies
 
 ### Backend & API
-* **Langage** : Python
-* **Framework** : FastAPI (Asynchrone, Rapide)
-* **Sécurité** : Authentification JWT (JSON Web Tokens)
-* **Base de données** : PostgreSQL (Stockage utilisateurs & historique des prédictions)
-* **ORM** : SQLAlchemy (Interaction DB)
+* **Language**: Python
+* **Framework**: FastAPI (Asynchronous, Fast)
+* **Security**: JWT Authentication (JSON Web Tokens)
+* **Database**: PostgreSQL (User storage & prediction history)
+* **ORM**: SQLAlchemy (DB Interaction)
 
 ### Data Science & ML
-* **Exploration** : Pandas, Seaborn
-* **Preprocessing** : Scikit-learn (StandardScaler, OneHotEncoder)
-* **Modélisation** : RandomForestClassifier & LogisticRegression
-* **IA Générative** : Intégration API (Gemini / HuggingFace) pour la génération de texte.
+* **Exploration**: Pandas, Seaborn
+* **Preprocessing**: Scikit-learn (StandardScaler, OneHotEncoder)
+* **Modeling**: RandomForestClassifier & LogisticRegression
+* **Generative AI**: API Integration (Gemini / HuggingFace) for text generation.
 
 ### DevOps
-* **Conteneurisation** : Docker & Docker Compose
-* **Tests** : Pytest (Unitaires & Mocks)
+* **Containerization**: Docker & Docker Compose
+* **Testing**: Pytest (Unit & Mocks)
 
 ---
 
-## 📂 Structure du Projet
+## 📂 Project Structure
 
-Voici l'arborescence du dépôt backend :
+Here is the backend repository file tree:
 
 ```text
 RetentionAI-Backend/
-├── app/                        # Cœur de l'application API
+├── app/                        # API Application Core
 │   ├── __init__.py
-│   ├── main.py                 # Point d'entrée FastAPI
-│   ├── models.py               # Modèles de base de données (SQLAlchemy)
-│   ├── schemas.py              # Schémas Pydantic (Validation des données)
-│   ├── crud.py                 # Opérations Create, Read, Update, Delete
-│   ├── database.py             # Configuration de la connexion PostgreSQL
-│   ├── security.py             # Gestion des tokens JWT et Hashage
-│   └── services.py             # Logique métier (appel ML, appel LLM)
+│   ├── main.py                 # FastAPI Entry Point
+│   ├── models.py               # Database Models (SQLAlchemy)
+│   ├── schemas.py              # Pydantic Schemas (Data Validation)
+│   ├── crud.py                 # Create, Read, Update, Delete Operations
+│   ├── database.py             # PostgreSQL Connection Setup
+│   ├── security.py             # JWT Token Management and Hashing
+│   └── services.py             # Business Logic (ML calls, LLM calls)
 │
-├── ml_dev/                     # Environnement de développement ML
-│   ├── data/                   # Dataset brut (RetentionAI.csv)
-│   ├── src/                    # Scripts d'exploration
-│   └── lab.ipynb               # Notebook Jupyter (EDA, Entraînement)
+├── ml_dev/                     # ML Development Environment
+│   ├── data/                   # Raw Dataset (RetentionAI.csv)
+│   ├── src/                    # Exploration Scripts
+│   └── lab.ipynb               # Jupyter Notebook (EDA, Training)
 │
-├── models/                     # Artefacts ML sérialisés (Production)
-│   ├── attrition_model.pkl     # Le modèle prédictif final
-│   ├── scaler_attrition.pkl    # Pour la normalisation
-│   └── colonnes_modele.pkl     # Liste des features attendues
+├── models/                     # Serialized ML Artifacts (Production)
+│   ├── attrition_model.pkl     # The final predictive model
+│   ├── scaler_attrition.pkl    # For normalization
+│   └── colonnes_modele.pkl     # List of expected features
 │
-├── tests/                      # Tests automatisés
-│   └── test_main.py            # Tests des endpoints API
+├── tests/                      # Automated Tests
+│   └── test_main.py            # API endpoint tests
 │
-├── Dockerfile                  # Instructions de build image
+├── Dockerfile                  # Image build instructions
 ├── docker-compose.yml          # Orchestration (API + DB)
-├── requirements.txt            # Dépendances Python
+├── requirements.txt            # Python Dependencies
 └── README.md                   # Documentation
-
 ```
 
 ---
 
-## 🚀 Installation et Démarrage
+## 🚀 Installation and Getting Started
 
-### Pré-requis
+### Prerequisites
 
-* Docker & Docker Compose (Recommandé)
-* **OU** Python 3.9+ et PostgreSQL installé localement.
+* Docker & Docker Compose (Recommended)
+* **OR** Python 3.9+ and PostgreSQL installed locally.
 
-### Option 1 : Démarrage rapide avec Docker (Recommandé)
+### Option 1: Quick Start with Docker (Recommended)
 
-1. **Cloner le dépôt**
+1. **Clone the repository**
 ```bash
 git clone [https://github.com/votre-username/RetentionAI.git](https://github.com/votre-username/RetentionAI.git)
 cd RetentionAI
-
 ```
 
-
-2. **Configurer les variables d'environnement**
-Créez un fichier `.env` à la racine :
+2. **Configure environment variables**
+Create a `.env` file at the root:
 ```env
 DATABASE_URL=postgresql://user:password@db:5432/retention_db
-SECRET_KEY=votre_cle_secrete_jwt
+SECRET_KEY=your_secret_jwt_key
 ALGORITHM=HS256
-GENAI_API_KEY=votre_api_key_gemini_ou_hf
-
+GENAI_API_KEY=your_gemini_or_hf_api_key
 ```
 
-
-3. **Lancer les services**
+3. **Launch the services**
 ```bash
 docker-compose up --build
-
 ```
 
+The API will be accessible at `http://localhost:8000`.
 
-L'API sera accessible sur `http://localhost:8000`.
+### Option 2: Manual Installation (Local)
 
-### Option 2 : Installation Manuelle (Local)
-
-1. Créer un environnement virtuel :
+1. Create a virtual environment:
 ```bash
 python -m venv RHvenv
-source RHvenv/bin/activate  # ou RHvenv\Scripts\activate sur Windows
-
+source RHvenv/bin/activate  # or RHvenv\Scripts\activate on Windows
 ```
 
-
-2. Installer les dépendances :
+2. Install dependencies:
 ```bash
 pip install -r requirements.txt
-
 ```
 
-
-3. Lancer le serveur :
+3. Run the server:
 ```bash
 uvicorn app.main:app --reload
-
 ```
 
-
-
 ---
 
-## 🔌 Documentation de l'API
+## 🔌 API Documentation
 
-Une fois l'application lancée, la documentation interactive Swagger est disponible sur :
+Once the application is running, the interactive Swagger documentation is available at:
 👉 **http://localhost:8000/docs**
 
-### Endpoints Clés
+### Key Endpoints
 
-#### 1. Authentification
+#### 1. Authentication
 
-* `POST /register` : Créer un compte Manager RH.
-* `POST /login` : Obtenir un **Access Token**.
+* `POST /register`: Create an HR Manager account.
+* `POST /login`: Obtain an **Access Token**.
 
-#### 2. Prédiction (Machine Learning)
+#### 2. Prediction (Machine Learning)
 
-* `POST /predict` (Protégé JWT)
-* **Input** : Données de l'employé (Age, Dept, JobRole, Satisfaction...)
-* **Output** : `{"churn_probability": 0.78}`
+* `POST /predict` (JWT Protected)
+* **Input**: Employee data (Age, Dept, JobRole, Satisfaction...)
+* **Output**: `{"churn_probability": 0.78}`
 
+#### 3. Retention (Generative AI)
 
-
-#### 3. Rétention (IA Générative)
-
-* `POST /generate-retention-plan` (Protégé JWT)
-* **Logique** : Si la probabilité > 50%, génère un plan.
-* **Output** : Suggestions concrètes (Télétravail, Formation, Augmentation...).
-
-
+* `POST /generate-retention-plan` (JWT Protected)
+* **Logic**: If probability > 50%, generates a plan.
+* **Output**: Concrete suggestions (Remote work, Training, Salary raise...).
 
 ---
 
-## 📊 Pipeline Machine Learning
+## 📊 Machine Learning Pipeline
 
-Le modèle a été développé dans le dossier `ml_dev/` suivant ces étapes :
+The model was developed in the `ml_dev/` folder following these steps:
 
-1. **Cleaning** : Suppression des variables à variance nulle (ex: Over18).
-2. **Encoding** : `OneHotEncoding` pour les variables catégorielles (Department, JobRole) et `LabelEncoding` pour la cible.
-3. **Scaling** : `StandardScaler` pour les variables numériques.
-4. **Training** : Comparaison entre **Logistic Regression** et **Random Forest**.
-* *Le modèle Random Forest a été retenu pour ses meilleures performances.*
+1. **Cleaning**: Removal of zero-variance variables (e.g., Over18).
+2. **Encoding**: `OneHotEncoding` for categorical variables (Department, JobRole) and `LabelEncoding` for the target.
+3. **Scaling**: `StandardScaler` for numerical variables.
+4. **Training**: Comparison between **Logistic Regression** and **Random Forest**.
+* *The Random Forest model was selected for its superior performance.*
 
-
-5. **Export** : Sauvegarde via `joblib` dans le dossier `models/`.
+5. **Export**: Saved via `joblib` in the `models/` folder.
 
 ---
 
-## 🎯 Exemple de Résultat Attendu
+## 🎯 Expected Result Example
 
-Voici le flux typique d'une détection de risque de départ (Churn) :
+Here is the typical flow for detecting departure risk (Churn):
 
-### 1. Entrée (Données Employé)
-Le manager RH envoie les données d'un employé via l'endpoint `/predict`.
+### 1. Input (Employee Data)
+The HR manager sends an employee's data via the `/predict` endpoint.
 
 ```json
 POST /predict
@@ -205,16 +192,15 @@ POST /predict
   "OverTime": "Yes",
   "MonthlyIncome": 4500,
   "EnvironmentSatisfaction": 1
-  // ... autres champs
+  // ... other fields
 }
-
 ```
 
-### 2. Sortie (Prédiction + Plan d'Action)
+### 2. Output (Prediction + Action Plan)
 
-L'API détecte une probabilité élevée (**78%**) et déclenche automatiquement l'IA générative car le risque dépasse le seuil d'alerte (50%).
+The API detects a high probability (**78%**) and automatically triggers the generative AI because the risk exceeds the alert threshold (50%).
 
-**Réponse JSON :**
+**JSON Response:**
 
 ```json
 {
@@ -222,14 +208,12 @@ L'API détecte une probabilité élevée (**78%**) et déclenche automatiquement
   "churn_probability": 0.78,
   "risk_level": "High",
   "suggested_retention_plan": [
-    "✅ Proposer un aménagement hybride (2 jours de télétravail) pour compenser les heures supplémentaires.",
-    "✅ Revoir la partie variable du salaire pour l'aligner sur la performance commerciale actuelle.",
-    "✅ Organiser un point RH pour discuter des causes de l'insatisfaction environnementale."
+    "✅ Propose a hybrid schedule (2 days of remote work) to compensate for overtime.",
+    "✅ Review the variable part of the salary to align it with current sales performance.",
+    "✅ Organize an HR meeting to discuss the causes of environmental dissatisfaction."
   ]
 }
-
 ```
 
-> **Note :** Si la probabilité est inférieure à 50%, le champ `suggested_retention_plan` renverra `null` ou un message indiquant qu'aucune action immédiate n'est requise.
-
+> **Note:** If the probability is below 50%, the `suggested_retention_plan` field will return `null` or a message indicating that no immediate action is required.
 
