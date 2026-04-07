@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-import models, schemas, database, crud, security, services
+import app.db.models as models, app.db.schemas as schemas, database, app.db.crud as crud, app.core.security as security, app.services.services as services
 
 # tables DB : Création au démarrage 
 models.MyBase.metadata.create_all(bind=database.engine)

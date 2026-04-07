@@ -1,3 +1,4 @@
+from app.services import services
 import pytest
 import os
 import sys
@@ -25,7 +26,7 @@ sys.path.append(os.path.join(root_dir, "app"))
 
 from app.main import app
 from app.database import get_db, MyBase
-from app import services, schemas
+from app.db import schemas
 
 
 

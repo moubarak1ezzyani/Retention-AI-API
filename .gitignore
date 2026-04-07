@@ -1,7 +1,6 @@
 # ------------------------------------------------
 # 1. PYTHON & SYSTEM (Standard)
 # ------------------------------------------------
-# Byte-compiled / Optimized files (Python temporary files)
 __pycache__/
 *.py[cod]
 *$py.class
@@ -33,8 +32,9 @@ RHvenv/
 *.xls
 *.json
 # If you have a dedicated folder for data:
-data/
+ml_dev/data/
 datasets/
+models/
 
 # Trained models (Often > 100MB)
 *.pkl
