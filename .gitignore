@@ -32,7 +32,7 @@ RHvenv/
 *.xls
 *.json
 # If you have a dedicated folder for data:
-ml_dev/data/
+data/
 datasets/
 models/
 
