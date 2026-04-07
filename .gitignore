@@ -1,60 +1,60 @@
 # ------------------------------------------------
-# 1. PYTHON & SYSTÈME (Classique)
+# 1. PYTHON & SYSTEM (Standard)
 # ------------------------------------------------
-# Byte-compiled / Optimised files (Fichiers temporaires Python)
+# Byte-compiled / Optimized files (Python temporary files)
 __pycache__/
 *.py[cod]
 *$py.class
 
-# Fichiers systèmes Mac/Windows inutiles
+# Unnecessary Mac/Windows system files
 .DS_Store
 Thumbs.db
 
 # ------------------------------------------------
-# 2. SÉCURITÉ & ENVIRONNEMENT (CRITIQUE)
+# 2. SECURITY & ENVIRONMENT (CRITICAL)
 # ------------------------------------------------
-# Variables d'environnement (Mots de passe, Clés API)
-# NE JAMAIS COMMITER CE FICHIER
+# Environment variables (Passwords, API Keys)
+# NEVER COMMIT THIS FILE
 .env
 .env.local
 
-# Environnements Virtuels
+# Virtual Environments
 venv/
 env/
 .venv/
 RHvenv/
 
 # ------------------------------------------------
-# 3. MACHINE LEARNING & DATA (Gros fichiers)
+# 3. MACHINE LEARNING & DATA (Large files)
 # ------------------------------------------------
-# Datasets et données brutes (Eviter de saturer Git)
+# Datasets and raw data (Avoid bloating Git)
 *.csv
 *.xlsx
 *.xls
 *.json
-# Si vous avez un dossier dédié aux données :
+# If you have a dedicated folder for data:
 data/
 datasets/
 
-# Modèles entraînés (Souvent > 100Mo)
+# Trained models (Often > 100MB)
 *.pkl
 *.joblib
 *.h5
 *.pt
 *.onnx
-# Si vous stockez les modèles dans un dossier :
+# If you store models in a dedicated folder:
 models/
 
-# Jupyter Notebook checkpoints (Dossiers parasites créés par Jupyter)
+# Jupyter Notebook checkpoints (Clutter folders created by Jupyter)
 .ipynb_checkpoints/
 
 # ------------------------------------------------
 # 4. BACKEND & IDE
 # ------------------------------------------------
-# Base de données locale (SQLite) pour FastAPI
+# Local database (SQLite) for FastAPI
 *.db
 *.sqlite3
 
-# Fichiers de configuration IDE (VS Code, Pycharm)
+# IDE configuration files (VS Code, PyCharm)
 .vscode/
 .idea/
