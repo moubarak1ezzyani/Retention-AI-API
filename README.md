@@ -54,33 +54,49 @@ Here is the backend repository file tree:
 
 ```text
 RetentionAI-Backend/
-├── app/                        # API Application Core
+├── .github/
+│   └── workflows/
+│       └── ci.yml               # CI/CD pipeline (GitHub Actions)
+├── app/                         # Core FastAPI Application
 │   ├── __init__.py
-│   ├── main.py                 # FastAPI Entry Point
-│   ├── models.py               # Database Models (SQLAlchemy)
-│   ├── schemas.py              # Pydantic Schemas (Data Validation)
-│   ├── crud.py                 # Create, Read, Update, Delete Operations
-│   ├── database.py             # PostgreSQL Connection Setup
-│   ├── security.py             # JWT Token Management and Hashing
-│   └── services.py             # Business Logic (ML calls, LLM calls)
-│
-├── ml_dev/                     # ML Development Environment
-│   ├── data/                   # Raw Dataset (RetentionAI.csv)
-│   ├── src/                    # Exploration Scripts
-│   └── lab.ipynb               # Jupyter Notebook (EDA, Training)
-│
-├── models/                     # Serialized ML Artifacts (Production)
-│   ├── attrition_model.pkl     # The final predictive model
-│   ├── scaler_attrition.pkl    # For normalization
-│   └── colonnes_modele.pkl     # List of expected features
-│
-├── tests/                      # Automated Tests
-│   └── test_main.py            # API endpoint tests
-│
-├── Dockerfile                  # Image build instructions
-├── docker-compose.yml          # Orchestration (API + DB)
-├── requirements.txt            # Python Dependencies
-└── README.md                   # Documentation
+│   ├── main.py                  # App entry point & middleware setup
+│   ├── core/                    
+│   │   ├── config.py            # Environment variable loading (Pydantic BaseSettings)
+│   │   └── security.py          # JWT, password hashing (bcrypt)
+│   ├── db/
+│   │   ├── database.py          # SQLAlchemy engine & session maker
+│   │   └── models.py            # DB schemas (users, predictions_history)
+│   ├── api/                     
+│   │   ├── dependencies.py      # get_db, get_current_user (Auth middleware)
+│   │   └── routes/              # Separated endpoints for cleaner code
+│   │       ├── auth.py          # /register, /login
+│   │       ├── predict.py       # /predict
+│   │       └── retention.py     # /generate-retention-plan
+│   ├── schemas/                 # Pydantic models (Input/Output validation)
+│   │   ├── user.py
+│   │   └── prediction.py
+│   └── services/                
+│       ├── ml_service.py        # Logic to load .pkl and run predictions
+│       └── llm_service.py       # Logic to call Gemini/HuggingFace API
+├── ml_dev/                      # Machine Learning Development
+│   ├── data/                    # Raw & processed CSV files (Keep out of git)
+│   ├── notebooks/               # EDA and experimentation
+│   │   └── 01_eda_and_training.ipynb
+│   └── train.py                 # Script to train and export the model reproducibly
+├── models/                      # Serialized ML models (Used by API)
+│   ├── attrition_model.pkl
+│   └── scaler.pkl
+├── tests/                       # Pytest directory
+│   ├── conftest.py              # Test fixtures (test DB, mock clients)
+│   ├── test_auth.py
+│   ├── test_predict.py
+│   └── test_llm.py              # Contains LLM mock tests
+├── .env.example                 # Example of required environment variables
+├── .gitignore                   # Ignore __pycache__, .env, venv, data/, etc.
+├── docker-compose.yml           # Runs API and PostgreSQL together
+├── Dockerfile                   # Instructions to build the API image
+├── requirements.txt             # Python dependencies
+└── README.md
 ```
 
 ---
