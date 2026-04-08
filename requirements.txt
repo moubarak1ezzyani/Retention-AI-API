@@ -19,6 +19,8 @@ pandas
 joblib
 scikit-learn
 numpy
+matplotlib
+seaborn
 
 # --- Intelligence Artificielle (Gemini) ---
 google-generativeai
