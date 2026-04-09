@@ -1,6 +1,6 @@
 from sqlalchemy import Integer, String, Column, DateTime, ForeignKey, Float
 from sqlalchemy.sql import func
-from database import MyBase
+from app.db.database import MyBase
 
 # Table sql orm :  id timestamp userid employeeid probability
 class UserDB(MyBase):
