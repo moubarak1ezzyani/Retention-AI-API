@@ -8,7 +8,7 @@ import os
 load_dotenv()
 secret_key = os.getenv("secret_key_env")
 algo = os.getenv("algo_env")
-access_token_expire_minutes = int(os.getenv("access_token_expire_minutes_env"))
+access_token_expire_minutes = int(os.getenv("access_token_expire_minutes_env", "30"))
 
 # --- bcrypt : algo d'hashage
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
