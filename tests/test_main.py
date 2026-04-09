@@ -1,4 +1,4 @@
-from app.services import services
+from app.services import ml_services
 import pytest
 import os
 import sys
