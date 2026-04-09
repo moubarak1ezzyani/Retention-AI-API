@@ -1,17 +1,18 @@
-# --- Framework API & Serveur ---
+# --- Framework API & Server ---
 fastapi
 uvicorn
 python-multipart
 
-# --- Base de données (ORM & Driver Postgres) ---
+# --- Database (ORM & PostgreSQL Driver) ---
 sqlalchemy
 psycopg2-binary
 
-# --- Authentification & Sécurité (JWT / Hash) ---
+# --- Authentication & Security (JWT / Password Hashing) ---
 python-jose[cryptography]
 passlib[bcrypt]
+bcrypt==3.2.2   # Pin version to avoid FastAPI/passlib incompatibility
 
-# --- Gestion des variables d'environnement ---
+# --- Environment Variables Management ---
 python-dotenv
 
 # --- Data Science & Machine Learning ---
@@ -19,16 +20,14 @@ pandas
 joblib
 scikit-learn
 numpy
-matplotlib
-seaborn
 
-# --- Intelligence Artificielle (Gemini) ---
+# --- Artificial Intelligence (Google Gemini) ---
 google-generativeai
 
-# --- Validation de données ---
+# --- Data Validation ---
 pydantic
 email-validator
 
-# --- Tests (Pour vos tests unitaires) ---
+# --- Testing (Unit & API Tests) ---
 pytest
 httpx
