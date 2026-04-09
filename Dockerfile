@@ -1,23 +1,35 @@
-# slim : image Python légère
-FROM python:3.10-slim
+# 1. Use the official lightweight Python image
+FROM python:3.11-slim
 
-# dossier de travail
-WORKDIR /app
+# 2. Set environment variables
+# PYTHONDONTWRITEBYTECODE: Prevents Python from writing .pyc files
+# PYTHONUNBUFFERED: Ensures console output is not buffered by Docker (makes logs real-time)
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
 
-# Installation des dépendances système
-RUN apt-get update && apt-get install -y gcc libpq-dev && rm -rf /var/lib/apt/lists/*
+# 3. Set the working directory inside the container
+WORKDIR /code
 
-# Copie des fichiers de dépendances
-COPY requirements.txt .
+# 4. Install system dependencies required for PostgreSQL (psycopg2) and ML libraries
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Installation des paquets Python
-RUN pip install --no-cache-dir -r requirements.txt
+# 5. Copy the requirements file first (Leverages Docker layer caching)
+COPY requirements.txt /code/
 
-# Copie de tout le code source backend + le modèle ML
-COPY . .
+# 6. Install Python dependencies
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Exposition du port 8000 (FastAPI)
+# 7. Copy the application code and models into the container
+# We explicitly copy what is needed to keep the container clean
+COPY ./app /code/app
+COPY ./models /code/models
+
+# 8. Expose the port Uvicorn will run on
 EXPOSE 8000
 
-# Commande de lancement (uvicorn)
+# 9. Command to run the FastAPI application
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
