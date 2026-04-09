@@ -3,12 +3,7 @@ from jose import jwt, JWTError
 from passlib.context import CryptContext
 from dotenv import load_dotenv
 import os
-
-# --- varaibles
-load_dotenv()
-secret_key = os.getenv("secret_key_env")
-algo = os.getenv("algo_env")
-access_token_expire_minutes = int(os.getenv("access_token_expire_minutes_env", "30"))
+from app.core.config import secret_key, algo, access_token_expire_minutes
 
 # --- bcrypt : algo d'hashage
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
