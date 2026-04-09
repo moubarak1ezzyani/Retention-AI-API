@@ -53,50 +53,71 @@ HR departments face high costs related to employee turnover. This project aims t
 Here is the backend repository file tree:
 
 ```text
-RetentionAI-Backend/
+RETENTION-AI-API/
 ├── .github/
 │   └── workflows/
-│       └── ci.yml               # CI/CD pipeline (GitHub Actions)
-├── app/                         # Core FastAPI Application
+│       └── ci.yml                       # CI/CD pipeline (GitHub Actions)
+│
+├── app/                                 # Core FastAPI Application
 │   ├── __init__.py
-│   ├── main.py                  # App entry point & middleware setup
-│   ├── core/                    
-│   │   ├── config.py            # Environment variable loading (Pydantic BaseSettings)
-│   │   └── security.py          # JWT, password hashing (bcrypt)
-│   ├── db/
-│   │   ├── database.py          # SQLAlchemy engine & session maker
-│   │   └── models.py            # DB schemas (users, predictions_history)
-│   ├── api/                     
-│   │   ├── dependencies.py      # get_db, get_current_user (Auth middleware)
-│   │   └── routes/              # Separated endpoints for cleaner code
-│   │       ├── auth.py          # /register, /login
-│   │       ├── predict.py       # /predict
-│   │       └── retention.py     # /generate-retention-plan
-│   ├── schemas/                 # Pydantic models (Input/Output validation)
-│   │   ├── user.py
-│   │   └── prediction.py
-│   └── services/                
-│       ├── ml_service.py        # Logic to load .pkl and run predictions
-│       └── llm_service.py       # Logic to call Gemini/HuggingFace API
-├── ml_dev/                      # Machine Learning Development
-│   ├── data/                    # Raw & processed CSV files (Keep out of git)
-│   ├── notebooks/               # EDA and experimentation
-│   │   └── 01_eda_and_training.ipynb
-│   └── train.py                 # Script to train and export the model reproducibly
-├── models/                      # Serialized ML models (Used by API)
-│   ├── attrition_model.pkl
-│   └── scaler.pkl
-├── tests/                       # Pytest directory
-│   ├── conftest.py              # Test fixtures (test DB, mock clients)
-│   ├── test_auth.py
-│   ├── test_predict.py
-│   └── test_llm.py              # Contains LLM mock tests
-├── .env.example                 # Example of required environment variables
-├── .gitignore                   # Ignore __pycache__, .env, venv, data/, etc.
-├── docker-compose.yml           # Runs API and PostgreSQL together
-├── Dockerfile                   # Instructions to build the API image
-├── requirements.txt             # Python dependencies
-└── README.md
+│   ├── main.py                          # The skinny entry point
+│   │
+│   ├── core/                            # App-wide settings and security
+│   │   ├── __init__.py
+│   │   ├── config.py                
+│   │   └── security.py              
+│   │
+│   ├── db/                              # ALL Data Structures & DB Logic
+│   │   ├── __init__.py
+│   │   ├── database.py                  # Setup engine & session
+│   │   ├── models.py                    # SQLAlchemy classes (UserDB, PredictionHistoryDB)
+│   │   ├── schemas.py                   # Pydantic classes (EmployeeFeatures, etc.)
+│   │   └── crud.py                      # Database query functions
+│   │
+│   ├── api/                             # API Routing & Endpoints
+│   │   ├── __init__.py
+│   │   ├── dependencies.py              # get_db, get_current_user
+│   │   └── routers/
+│   │       ├── auth.py                  # /register, /login
+│   │       ├── prediction.py            # /predict, /generate-retention-plan
+│   │       └── utils.py                 # /health, /history
+│   │
+│   └── services/                        # Business logic (ML & AI)
+│       ├── __init__.py
+│       ├── ml_service.py                # Preprocessing and model inference
+│       └── ai_service.py                # Gemini prompt logic
+│
+├── data/                                # Raw & processed data (Keep out of git)
+│   └── df_RetentionAI.csv
+│
+├── models/                              # Serialized ML artifacts (Ignored in Git)
+│   ├── baseline/
+│   │   ├── LogisticRegression_optimized_model.pkl
+│   │   └── RandomForest_optimized_model.pkl
+│   ├── encode_scale/
+│   │   ├── ohe_encoder.pkl
+│   │   ├── ordinal_encoder.pkl
+│   │   └── scaler.pkl
+│   └── smote/
+│       ├── LogisticRegression_SMOTE_optimized.pkl
+│       └── RandomForest_SMOTE_optimized.pkl
+│
+├── notebooks/                           # EDA and experimentation
+│   └── lab.ipynb
+│
+├── tests/                               # Pytest directory
+│   ├── __init__.py
+│   ├── conftest.py                      # Test fixtures (test DB, mock clients)
+│   ├── test_auth.py                     # Tests for registration and login
+│   ├── test_predict.py                  # Tests for ML inference endpoint
+│   └── test_llm.py                      # Tests for Gemini retention plans
+│
+├── .env.example                         # Example of required environment variables
+├── .gitignore                           # Ignore __pycache__, .env, venv, data/, models/, etc.
+├── docker-compose.yml                   # Runs API and PostgreSQL together
+├── Dockerfile                           # Instructions to build the API image
+├── requirements.txt                     # Python dependencies
+└── README.md                            # Project documentation
 ```
 
 ---
