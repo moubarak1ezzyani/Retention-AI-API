@@ -2,11 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.db.models import UserDB
-from app.db.schemas import EmployeeFeatures, PredictResponse, RetentionPlanRequest, RetentionPlanResponse
+from app.db.schemas import EmployeeFeatures, PredictResponse
 from app.db.crud import create_prediction_record
 from app.api.dependencies import get_db, get_current_user
 from app.services.ml_service import predict_churn
-from app.services.ai_service import generate_plan
+
 
 router = APIRouter(tags=["Prediction & AI"])
 

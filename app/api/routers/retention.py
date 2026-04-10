@@ -2,12 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.db.models import UserDB
-from app.db.schemas import EmployeeFeatures, PredictResponse, RetentionPlanRequest, RetentionPlanResponse
+from app.db.schemas import RetentionPlanRequest, RetentionPlanResponse
 from app.db.crud import create_prediction_record
 from app.api.dependencies import get_db, get_current_user
 from app.services.ml_service import predict_churn
-from app.services.ai_service import generate_plan
+from app.services.llm_service import generate_plan
 
+router = APIRouter()  
 
 @router.post("/generate-retention-plan", response_model=RetentionPlanResponse, summary="Generate an AI retention plan")
 def generate_retention_plan(
