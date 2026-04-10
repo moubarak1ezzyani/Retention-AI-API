@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from app.db.database import engine, Base
-from app.api.routers import auth, prediction, utils
+from app.api.routers import auth, predict, retention, utils
 
 # Create tables at startup (safe to run repeatedly)
 Base.metadata.create_all(bind=engine)
@@ -13,7 +13,8 @@ app = FastAPI(
 
 # Register routers (paths stay identical to original to ensure no tests break)
 app.include_router(auth.router)
-app.include_router(prediction.router)
+app.include_router(predict.router)
+app.include_router(retention.router)
 app.include_router(utils.router)
 
 if __name__ == "__main__":
