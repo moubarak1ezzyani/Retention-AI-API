@@ -14,7 +14,7 @@ DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localho
 
 # --- External APIs ---
 HF_TOKEN = os.getenv("HF_TOKEN", "")
-
+ORIGIN_FRONTEND = os.getenv("FRONTEND_URL", "http://localhost:3000")
 # --- Paths ---
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 SMOTE_DIR = BASE_DIR / "models" / "smote"
