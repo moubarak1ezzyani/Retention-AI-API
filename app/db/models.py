@@ -1,19 +1,20 @@
-from sqlalchemy import Integer, String, Column, DateTime, ForeignKey, Float
-from sqlalchemy.sql import func
+from datetime import datetime, timezone
+from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey
 from app.db.database import Base
 
-# Table sql orm :  id timestamp userid employeeid probability
 class UserDB(Base):
-    __tablename__="users"
-    id=Column(Integer, primary_key=True, index=True)
-    username=Column(String, unique=True, index=True)
-    password_hash=Column(String) 
-    created_at=Column(DateTime(timezone=True), server_default=func.now())
+    __tablename__ = "users"
 
-class prediction_history(Base):
-    __tablename__="prediction_history"
-    id=Column(Integer, primary_key=True, index=True)
-    timestamp=Column(DateTime(timezone=True), server_default=func.now())
-    user_id = Column(Integer, ForeignKey('users.id')) 
-    employee_id = Column(Integer) 
-    probability=Column(Float)
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, nullable=False, index=True)
+    password_hash = Column(String, nullable=False)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+class PredictionHistoryDB(Base):
+    __tablename__ = "predictions_history"
+
+    id = Column(Integer, primary_key=True, index=True)
+    timestamp = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    employee_id = Column(String, nullable=True)
+    probability = Column(Float, nullable=False)

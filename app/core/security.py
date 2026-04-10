@@ -1,29 +1,22 @@
 from datetime import datetime, timedelta, timezone
-from jose import jwt, JWTError
+from typing import Optional
 from passlib.context import CryptContext
-from dotenv import load_dotenv
-import os
-from app.core.config import secret_key, algo, access_token_expire_minutes
+from jose import jwt
 
-# --- bcrypt : algo d'hashage
+from app.core.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# --- Register - HACHER password : '1234' --> ''$a#v@'
-def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
+def hash_password(plain: str) -> str:
+    return pwd_context.hash(plain)
 
-# --- Login - VÉRIFIER password : 123456 --> $2b$12 => (vs) [stocké]
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+def verify_password(plain: str, hashed: str) -> bool:
+    return pwd_context.verify(plain, hashed)
 
-# --- GÉNÉRER LE TOKEN : badge numérique
-def create_access_token(data: dict):
-    to_encode = data.copy()
-
-    # definir la date d'exp : now + 30 min
-    expire = datetime.now(timezone.utc) + timedelta(minutes=access_token_expire_minutes)            
-    to_encode.update({"exp": expire})
-
-    # signer le tout numériquement
-    encoded_jwt = jwt.encode(to_encode, secret_key, algorithm=algo)
-    return encoded_jwt
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+    payload = data.copy()
+    expire = datetime.now(timezone.utc) + (
+        expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    )
+    payload.update({"exp": expire})
+    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
