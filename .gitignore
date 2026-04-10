@@ -35,6 +35,7 @@ RHvenv/
 data/
 datasets/
 models/
+frontend_integration_report.md
 
 # Trained models (Often > 100MB)
 *.pkl
