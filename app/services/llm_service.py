@@ -1,13 +1,13 @@
 import json
-import re
 from google import genai
+from google.genai import types
 from app.core.config import GEMINI_API_KEY
 
+# 1. New Client Initialization
 if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
-    gemini_model = genai.GenerativeModel("gemini-2.5-flash")
+    client = genai.Client(api_key=GEMINI_API_KEY)
 else:
-    gemini_model = None
+    client = None
 
 def build_retention_prompt(employee: dict, probability: float) -> str:
     return f"""
@@ -33,7 +33,7 @@ Contexte : ce salarié présente un risque élevé de départ (churn_probability
 
 Tâche : propose EXACTEMENT 3 actions concrètes, personnalisées et opérationnelles pour retenir cet employé. Tiens compte de son rôle, sa satisfaction, sa performance et son équilibre vie professionnelle/personnelle. Rédige chaque action de façon claire pour un manager RH, en une seule phrase percutante.
 
-Réponds UNIQUEMENT sous ce format JSON (sans markdown, sans texte autour) :
+Réponds UNIQUEMENT sous ce format JSON :
 {{
   "retention_plan": [
     "Action 1",
@@ -44,20 +44,30 @@ Réponds UNIQUEMENT sous ce format JSON (sans markdown, sans texte autour) :
 """.strip()
 
 def generate_plan(employee_dict: dict, probability: float) -> list[str]:
-    if gemini_model is None:
+    if client is None:
         raise ValueError("GEMINI_API_KEY is not configured.")
         
     prompt = build_retention_prompt(employee_dict, probability)
-    response = gemini_model.generate_content(prompt)
-    raw_text = response.text.strip()
-
-    json_match = re.search(r"\{.*\}", raw_text, re.DOTALL)
-    if not json_match:
-        raise ValueError("Gemini did not return a valid JSON block.")
+    
+    # 2. New SDK API Call with forced JSON output
+    response = client.models.generate_content(
+        model='gemini-2.5-flash',
+        contents=prompt,
+        config=types.GenerateContentConfig(
+            response_mime_type="application/json",
+            temperature=0.7, # Optional: added slightly lower temperature for more consistent, grounded HR advice
+        ),
+    )
+    
+    # 3. Cleaned up parsing (no more regex needed!)
+    try:
+        parsed = json.loads(response.text.strip())
+        plan = parsed.get("retention_plan", [])
         
-    parsed = json.loads(json_match.group())
-    plan = parsed.get("retention_plan", [])
-    if not plan or not isinstance(plan, list):
-        raise ValueError("retention_plan key missing or empty.")
+        if not plan or not isinstance(plan, list):
+            raise ValueError("retention_plan key missing or empty.")
+            
+        return plan
         
-    return plan
+    except json.JSONDecodeError:
+        raise ValueError("Gemini did not return a valid JSON format.")
