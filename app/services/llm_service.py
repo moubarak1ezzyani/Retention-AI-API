@@ -1,18 +1,17 @@
 import json
-from google import genai
-from google.genai import types
-from app.core.config import GEMINI_API_KEY
+from huggingface_hub import InferenceClient
+from app.core.config import HF_TOKEN
 
-# 1. New Client Initialization
-if GEMINI_API_KEY:
-    client = genai.Client(api_key=GEMINI_API_KEY)
+# Initialize the Hugging Face Client
+if HF_TOKEN:
+    client = InferenceClient(api_key=HF_TOKEN)
+    # Using Llama-3-8B as it is highly capable and supported on the free Inference API
+    MODEL_ID = "meta-llama/Meta-Llama-3-8B-Instruct"
 else:
     client = None
 
 def build_retention_prompt(employee: dict, probability: float) -> str:
     return f"""
-Agis comme un expert RH senior.
-
 Voici les informations sur l'employé :
 - Âge                        : {employee.get('Age')}
 - Département                : {employee.get('Department')}
@@ -29,11 +28,11 @@ Voici les informations sur l'employé :
 - Revenu mensuel             : {employee.get('MonthlyIncome')} $
 - Option d'achat d'actions   : {employee.get('StockOptionLevel')} / 3
 
-Contexte : ce salarié présente un risque élevé de départ (churn_probability = {probability:.0%}) selon notre modèle prédictif de rétention.
+Contexte : ce salarié présente un risque élevé de départ (churn_probability = {probability:.0%}) selon notre modèle prédictif.
 
-Tâche : propose EXACTEMENT 3 actions concrètes, personnalisées et opérationnelles pour retenir cet employé. Tiens compte de son rôle, sa satisfaction, sa performance et son équilibre vie professionnelle/personnelle. Rédige chaque action de façon claire pour un manager RH, en une seule phrase percutante.
+Tâche : propose EXACTEMENT 3 actions concrètes, personnalisées et opérationnelles pour retenir cet employé. Tiens compte de son rôle, sa satisfaction, sa performance et son équilibre vie professionnelle/personnelle. Rédige chaque action de façon claire en une seule phrase.
 
-Réponds UNIQUEMENT sous ce format JSON :
+Réponds UNIQUEMENT sous ce format JSON (ne génère aucun autre texte) :
 {{
   "retention_plan": [
     "Action 1",
@@ -45,23 +44,29 @@ Réponds UNIQUEMENT sous ce format JSON :
 
 def generate_plan(employee_dict: dict, probability: float) -> list[str]:
     if client is None:
-        raise ValueError("GEMINI_API_KEY is not configured.")
+        raise ValueError("HF_TOKEN is not configured in .env")
         
     prompt = build_retention_prompt(employee_dict, probability)
     
-    # 2. New SDK API Call with forced JSON output
-    response = client.models.generate_content(
-        model='gemini-2.5-flash',
-        contents=prompt,
-        config=types.GenerateContentConfig(
-            response_mime_type="application/json",
-            temperature=0.7, # Optional: added slightly lower temperature for more consistent, grounded HR advice
-        ),
+    # Format messages for the chat completions API
+    messages = [
+        {"role": "system", "content": "Tu es un expert RH senior. Tu dois répondre uniquement avec un objet JSON valide."},
+        {"role": "user", "content": prompt}
+    ]
+    
+    # Call Hugging Face Inference API with JSON format enforcement
+    response = client.chat_completion(
+        model=MODEL_ID,
+        messages=messages,
+        response_format={"type": "json_object"},
+        max_tokens=400,
+        temperature=0.7
     )
     
-    # 3. Cleaned up parsing (no more regex needed!)
+    raw_text = response.choices[0].message.content.strip()
+    
     try:
-        parsed = json.loads(response.text.strip())
+        parsed = json.loads(raw_text)
         plan = parsed.get("retention_plan", [])
         
         if not plan or not isinstance(plan, list):
@@ -70,4 +75,4 @@ def generate_plan(employee_dict: dict, probability: float) -> list[str]:
         return plan
         
     except json.JSONDecodeError:
-        raise ValueError("Gemini did not return a valid JSON format.")
+        raise ValueError(f"Model did not return valid JSON. Raw output: {raw_text}")

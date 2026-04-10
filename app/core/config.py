@@ -13,7 +13,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/retention_ai")
 
 # --- External APIs ---
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+HF_TOKEN = os.getenv("HF_TOKEN", "")
 
 # --- Paths ---
 BASE_DIR = Path(__file__).resolve().parent.parent.parent

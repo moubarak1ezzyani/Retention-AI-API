@@ -21,8 +21,8 @@ joblib
 scikit-learn
 numpy
 
-# --- Artificial Intelligence (Google Gemini) ---
-google-generativeai
+# --- Artificial Intelligence (Hugging Fce) ---
+huggingface_hub
 
 # --- Data Validation ---
 pydantic
