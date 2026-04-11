@@ -1,3 +1,4 @@
+import os
 import joblib
 import pandas as pd
 from pathlib import Path
@@ -13,15 +14,26 @@ def _load_artifact(path: Path, label: str):
         )
     return joblib.load(path)
 
-# Load Encoders
-scaler = _load_artifact(PREPROCESS_DIR / "scaler.pkl", "StandardScaler")
-ordinal_encoder = _load_artifact(PREPROCESS_DIR / "ordinal_encoder.pkl", "OrdinalEncoder")
-ohe_encoder = _load_artifact(PREPROCESS_DIR / "ohe_encoder.pkl", "OneHotEncoder")
+# ==========================================
+# Artifact Loading (with CI/CD Test Bypass)
+# ==========================================
+if os.getenv("TESTING") == "true":
+    # Skip loading artifacts during Pytest runs in GitHub Actions
+    scaler = None
+    ordinal_encoder = None
+    ohe_encoder = None
+    model = None
+else:
+    # Load Encoders
+    scaler = _load_artifact(PREPROCESS_DIR / "scaler.pkl", "StandardScaler")
+    ordinal_encoder = _load_artifact(PREPROCESS_DIR / "ordinal_encoder.pkl", "OrdinalEncoder")
+    ohe_encoder = _load_artifact(PREPROCESS_DIR / "ohe_encoder.pkl", "OneHotEncoder")
 
-# Load Model (Prefers the SMOTE-optimized Random Forest)
-_rf_path = SMOTE_DIR / "RandomForest_SMOTE_optimized.pkl"
-_lr_path = SMOTE_DIR / "LogisticRegression_SMOTE_optimized.pkl"
-model = _load_artifact(_rf_path if _rf_path.exists() else _lr_path, "ML model")
+    # Load Model (Prefers the SMOTE-optimized Random Forest)
+    _rf_path = SMOTE_DIR / "RandomForest_SMOTE_optimized.pkl"
+    _lr_path = SMOTE_DIR / "LogisticRegression_SMOTE_optimized.pkl"
+    model = _load_artifact(_rf_path if _rf_path.exists() else _lr_path, "ML model")
+# ==========================================
 
 def preprocess(employee: dict) -> pd.DataFrame:
     """Transforms a single employee JSON payload into the format the model expects."""
@@ -47,4 +59,6 @@ def predict_churn(employee_dict: dict) -> float:
 
 def get_model_name() -> str:
     """Returns the name of the active model for health checks."""
+    if model is None:
+        return "MockModel_Testing"
     return type(model).__name__
