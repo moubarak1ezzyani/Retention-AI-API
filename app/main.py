@@ -1,8 +1,10 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from app.db.database import engine, Base
 from app.api.routers import auth, predict, retention, utils
+from app.core.config import ORIGIN_FRONTEND 
 
-# Create tables at startup (safe to run repeatedly)
+# Create tables at startup 
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
@@ -11,7 +13,15 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# Register routers (paths stay identical to original to ensure no tests break)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[ORIGIN_FRONTEND], # only this frontend will be auth
+    allow_credentials=True,
+    allow_methods=["*"], # GET, POST, PUT, DELETE, etc.
+    allow_headers=["*"],
+)
+
+# Register routers 
 app.include_router(auth.router)
 app.include_router(predict.router)
 app.include_router(retention.router)

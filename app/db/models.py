@@ -17,4 +17,6 @@ class PredictionHistoryDB(Base):
     timestamp = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     employee_id = Column(String, nullable=True)
+    department = Column(String, nullable=True)  
+    role = Column(String, nullable=True)        
     probability = Column(Float, nullable=False)
