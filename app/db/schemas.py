@@ -43,6 +43,8 @@ class EmployeeFeatures(BaseModel):
 
 class PredictResponse(BaseModel):
     employee_id: Optional[str]
+    department: Optional[str] = None  
+    role: Optional[str] = None        
     churn_probability: float
     risk_level: str
 
