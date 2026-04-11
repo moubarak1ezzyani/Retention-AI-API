@@ -1,0 +1,29 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Project specific
+data/
+notebooks/
+tests/
+frontend_integration_report.md
+README.md
+docker-compose.yml
+Dockerfile
+
+# Artifacts
+.pytest_cache/
+.coverage
+htmlcov/
