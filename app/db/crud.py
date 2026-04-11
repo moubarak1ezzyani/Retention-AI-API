@@ -10,10 +10,12 @@ def create_user(db: Session, user: UserDB):
     db.refresh(user)
     return user
 
-def create_prediction_record(db: Session, user_id: int, employee_id: str, probability: float):
+def create_prediction_record(db: Session, user_id: int, employee_id: str, department : str, role : str, probability: float):
     record = PredictionHistoryDB(
         user_id=user_id,
         employee_id=employee_id,
+        department=department,   
+        role=role,               
         probability=probability,
     )
     db.add(record)
