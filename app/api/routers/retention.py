@@ -43,7 +43,7 @@ def generate_retention_plan(
             detail=f"Gemini generation error: {exc}",
         )
 
-    create_prediction_record(db, current_user.id, employee.employee_id, proba)
+    # create_prediction_record(db, current_user.id, employee.employee_id, proba)
 
     return RetentionPlanResponse(
         churn_probability=round(proba, 4),
