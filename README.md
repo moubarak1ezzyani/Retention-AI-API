@@ -48,7 +48,7 @@ HR departments face high costs related to employee turnover. This project aims t
 
 ---
 
-## 📂 Project Structure
+📂 Project Structure
 
 Here is the backend repository file tree:
 
@@ -64,8 +64,8 @@ RETENTION-AI-API/
 │   │
 │   ├── core/                            # App-wide settings and security
 │   │   ├── __init__.py
-│   │   ├── config.py                
-│   │   └── security.py              
+│   │   ├── config.py
+│   │   └── security.py
 │   │
 │   ├── db/                              # ALL Data Structures & DB Logic
 │   │   ├── __init__.py
@@ -79,13 +79,14 @@ RETENTION-AI-API/
 │   │   ├── dependencies.py              # get_db, get_current_user
 │   │   └── routers/
 │   │       ├── auth.py                  # /register, /login
-│   │       ├── prediction.py            # /predict, /generate-retention-plan
+│   │       ├── predict.py               # /predict, /generate-retention-plan
+│   │       ├── retention.py             # Prescriptive AI logic
 │   │       └── utils.py                 # /health, /history
 │   │
 │   └── services/                        # Business logic (ML & AI)
 │       ├── __init__.py
 │       ├── ml_service.py                # Preprocessing and model inference
-│       └── ai_service.py                # LLM prompt logic
+│       └── llm_service.py               # Generative AI (LLM) logic
 │
 ├── data/                                # Raw & processed data (Keep out of git)
 │   └── df_RetentionAI.csv
