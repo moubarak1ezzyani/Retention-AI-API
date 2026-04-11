@@ -7,12 +7,11 @@ from app.db.crud import create_prediction_record
 from app.api.dependencies import get_db, get_current_user
 from app.services.ml_service import predict_churn
 
-
 router = APIRouter(tags=["Prediction & AI"])
 
 @router.post("/predict", response_model=PredictResponse, summary="Predict employee churn probability")
 def predict(
-    employee: EmployeeFeatures,
+    employee: EmployeeFeatures,  
     db: Session = Depends(get_db),
     current_user: UserDB = Depends(get_current_user),
 ):
@@ -25,12 +24,22 @@ def predict(
             detail=f"Preprocessing / inference error: {exc}",
         )
 
-    create_prediction_record(db, current_user.id, employee.employee_id, proba)
+    
+    create_prediction_record(
+        db=db, 
+        user_id=current_user.id, 
+        employee_id=employee.employee_id, 
+        department=employee.Department,   
+        role=employee.JobRole,           
+        probability=proba
+    )
 
     risk = "High" if proba > 0.66 else "Medium" if proba > 0.33 else "Low"
+    
     return PredictResponse(
         employee_id=employee.employee_id,
+        department=employee.Department,   
+        role=employee.JobRole,            
         churn_probability=round(proba, 4),
         risk_level=risk,
     )
-
