@@ -31,3 +31,8 @@ email-validator
 # --- Testing (Unit & API Tests) ---
 pytest
 httpx
+
+# --- Development & Data Science (Notebooks & Research) ---
+matplotlib
+seaborn
+imbalanced-learn
