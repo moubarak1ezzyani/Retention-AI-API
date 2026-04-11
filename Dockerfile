@@ -1,35 +1,67 @@
-# 1. Use the official lightweight Python image
-FROM python:3.11-slim
+# --- Stage 1: Build Stage ---
+# We can use a larger image to build dependencies if needed, 
+# but for this project, the slim image is sufficient.
+FROM python:3.11-slim as builder
 
-# 2. Set environment variables
-# PYTHONDONTWRITEBYTECODE: Prevents Python from writing .pyc files
-# PYTHONUNBUFFERED: Ensures console output is not buffered by Docker (makes logs real-time)
+# Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# 3. Set the working directory inside the container
-WORKDIR /code
+# Set the working directory
+WORKDIR /app
 
-# 4. Install system dependencies required for PostgreSQL (psycopg2) and ML libraries
-RUN apt-get update && apt-get install -y \
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# 5. Copy the requirements file first (Leverages Docker layer caching)
-COPY requirements.txt /code/
-
-# 6. Install Python dependencies
+# Install python dependencies into a local directory
+COPY requirements.txt .
 RUN pip install --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+    pip install --user -r requirements.txt
 
-# 7. Copy the application code and models into the container
-# We explicitly copy what is needed to keep the container clean
-COPY ./app /code/app
-COPY ./models /code/models
+# --- Stage 2: Final Runtime Stage ---
+FROM python:3.11-slim
 
-# 8. Expose the port Uvicorn will run on
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PATH="/home/appuser/.local/bin:${PATH}"
+
+# Set the working directory
+WORKDIR /app
+
+# Install runtime dependencies (libpq-dev is needed for psycopg2 at runtime if not self-contained)
+# Also install curl for the healthcheck
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq5 \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create a non-root user for security
+RUN useradd -m -u 1000 appuser && \
+    chown -R appuser:appuser /app
+
+# Switch to the non-root user
+USER appuser
+
+# Copy installed python packages from the builder stage
+COPY --from=builder --chown=appuser:appuser /root/.local /home/appuser/.local
+
+# Copy the application code and models
+# Ensure ownership is set to the non-root user
+COPY --chown=appuser:appuser ./app /app/app
+COPY --chown=appuser:appuser ./models /app/models
+
+# Expose the API port
 EXPOSE 8000
 
-# 9. Command to run the FastAPI application
+# Healthcheck to ensure the container is running correctly
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Start the application
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
