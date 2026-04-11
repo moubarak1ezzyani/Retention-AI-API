@@ -24,6 +24,8 @@ def get_history(
             "id": r.id,
             "timestamp": r.timestamp,
             "employee_id": r.employee_id,
+            "department": r.department,    
+            "role": r.role,                
             "probability": round(r.probability, 4),
             "risk_level": "High" if r.probability > 0.66 else "Medium" if r.probability > 0.33 else "Low",
         }
