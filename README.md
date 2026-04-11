@@ -40,7 +40,7 @@ HR departments face high costs related to employee turnover. This project aims t
 * **Exploration**: Pandas, Seaborn
 * **Preprocessing**: Scikit-learn (StandardScaler, OneHotEncoder)
 * **Modeling**: RandomForestClassifier & LogisticRegression
-* **Generative AI**: API Integration (Gemini / HuggingFace) for text generation.
+* **Generative AI**: API Integration (HuggingFace / Llama-3) for text generation.
 
 ### DevOps
 * **Containerization**: Docker & Docker Compose
@@ -85,7 +85,7 @@ RETENTION-AI-API/
 │   └── services/                        # Business logic (ML & AI)
 │       ├── __init__.py
 │       ├── ml_service.py                # Preprocessing and model inference
-│       └── ai_service.py                # Gemini prompt logic
+│       └── ai_service.py                # LLM prompt logic
 │
 ├── data/                                # Raw & processed data (Keep out of git)
 │   └── df_RetentionAI.csv
@@ -110,7 +110,7 @@ RETENTION-AI-API/
 │   ├── conftest.py                      # Test fixtures (test DB, mock clients)
 │   ├── test_auth.py                     # Tests for registration and login
 │   ├── test_predict.py                  # Tests for ML inference endpoint
-│   └── test_llm.py                      # Tests for Gemini retention plans
+│   └── test_llm.py                      # Tests for LLM retention plans
 │
 ├── .env.example                         # Example of required environment variables
 ├── .gitignore                           # Ignore __pycache__, .env, venv, data/, models/, etc.
@@ -143,7 +143,7 @@ Create a `.env` file at the root:
 DATABASE_URL=postgresql://user:password@db:5432/retention_db
 SECRET_KEY=your_secret_jwt_key
 ALGORITHM=HS256
-GENAI_API_KEY=your_gemini_or_hf_api_key
+HF_TOKEN=your_huggingface_api_key
 ```
 
 3. **Launch the services**
@@ -213,44 +213,128 @@ The model was developed in the `ml_dev/` folder following these steps:
 
 ---
 
-## 🎯 Expected Result Example
+## 🧪 Testing Guide (Swagger UI)
 
-Here is the typical flow for detecting departure risk (Churn):
+To evaluate the performance of the Machine Learning predictive model and the AI integration (Llama-3 via Hugging Face), you can use the interactive Swagger documentation.
 
-### 1. Input (Employee Data)
-The HR manager sends an employee's data via the `/predict` endpoint.
+### 🧠 How the System Works
+* **Low Risk (≤ 50%):** The ML model predicts the employee is safe. The system bypasses the AI and returns a standard, hardcoded retention response.
+* **High Risk (> 50%):** The ML model flags the employee as a flight risk. The system dynamically triggers the LLM to generate a customized 3-step retention plan based on their specific pain points.
 
+**Instructions:**
+1. Run your backend server and open the Swagger UI (usually at `http://localhost:8000/docs`).
+2. Navigate to the `POST /generate-retention-plan` endpoint.
+3. Click **Try it out**.
+4. Clear the default JSON entirely and paste one of the raw data blocks below.
+5. Click **Execute**.
+
+### 🚨 Profile 1: High Risk (Triggers AI Generation)
+This employee is overworked, underpaid, and unhappy.
 ```json
-POST /predict
 {
-  "Age": 35,
-  "Department": "Sales",
-  "JobRole": "Sales Executive",
+  "Age": 24,
+  "DailyRate": 400,
+  "DistanceFromHome": 25,
+  "HourlyRate": 45,
+  "MonthlyIncome": 2500,
+  "MonthlyRate": 10000,
+  "NumCompaniesWorked": 4,
+  "PercentSalaryHike": 11,
+  "TotalWorkingYears": 2,
+  "TrainingTimesLastYear": 2,
+  "YearsAtCompany": 1,
+  "YearsInCurrentRole": 1,
+  "YearsSinceLastPromotion": 0,
+  "YearsWithCurrManager": 1,
+  "BusinessTravel": "Travel_Frequently",
   "OverTime": "Yes",
-  "MonthlyIncome": 4500,
-  "EnvironmentSatisfaction": 1
-  // ... other fields
+  "Gender": "Male",
+  "Department": "Sales",
+  "EducationField": "Marketing",
+  "JobRole": "Sales Representative",
+  "MaritalStatus": "Single",
+  "Education": 2,
+  "EnvironmentSatisfaction": 1,
+  "JobInvolvement": 2,
+  "JobSatisfaction": 1,
+  "PerformanceRating": 3,
+  "RelationshipSatisfaction": 2,
+  "StockOptionLevel": 0,
+  "WorkLifeBalance": 1,
+  "employee_id": "EMP-001-RISK"
 }
 ```
 
-### 2. Output (Prediction + Action Plan)
-
-The API detects a high probability (**78%**) and automatically triggers the generative AI because the risk exceeds the alert threshold (50%).
-
-**JSON Response:**
-
+### 🛡️ Profile 2: The "Happy Lifer" (Bypasses AI)
+This is a senior manager with great pay, high satisfaction, and no overtime.
 ```json
 {
-  "employee_id": "EMP-1024",
-  "churn_probability": 0.78,
-  "risk_level": "High",
-  "suggested_retention_plan": [
-    "✅ Propose a hybrid schedule (2 days of remote work) to compensate for overtime.",
-    "✅ Review the variable part of the salary to align it with current sales performance.",
-    "✅ Organize an HR meeting to discuss the causes of environmental dissatisfaction."
-  ]
+  "Age": 45,
+  "DailyRate": 1200,
+  "DistanceFromHome": 5,
+  "HourlyRate": 85,
+  "MonthlyIncome": 15000,
+  "MonthlyRate": 20000,
+  "NumCompaniesWorked": 1,
+  "PercentSalaryHike": 18,
+  "TotalWorkingYears": 20,
+  "TrainingTimesLastYear": 5,
+  "YearsAtCompany": 15,
+  "YearsInCurrentRole": 10,
+  "YearsSinceLastPromotion": 5,
+  "YearsWithCurrManager": 8,
+  "BusinessTravel": "Non-Travel",
+  "OverTime": "No",
+  "Gender": "Female",
+  "Department": "Research & Development",
+  "EducationField": "Life Sciences",
+  "JobRole": "Manager",
+  "MaritalStatus": "Married",
+  "Education": 4,
+  "EnvironmentSatisfaction": 4,
+  "JobInvolvement": 4,
+  "JobSatisfaction": 4,
+  "PerformanceRating": 4,
+  "RelationshipSatisfaction": 4,
+  "StockOptionLevel": 2,
+  "WorkLifeBalance": 4,
+  "employee_id": "EMP-002-SAFE"
 }
 ```
 
-> **Note:** If the probability is below 50%, the `suggested_retention_plan` field will return `null` or a message indicating that no immediate action is required.
-
+### ⚠️ Profile 3: The "Burnout" (Tests AI Reasoning)
+This is a technical worker who generally likes their job but is suffering from severe burnout due to overtime.
+```json
+{
+  "Age": 32,
+  "DailyRate": 900,
+  "DistanceFromHome": 10,
+  "HourlyRate": 75,
+  "MonthlyIncome": 7000,
+  "MonthlyRate": 15000,
+  "NumCompaniesWorked": 2,
+  "PercentSalaryHike": 15,
+  "TotalWorkingYears": 10,
+  "TrainingTimesLastYear": 3,
+  "YearsAtCompany": 5,
+  "YearsInCurrentRole": 4,
+  "YearsSinceLastPromotion": 1,
+  "YearsWithCurrManager": 4,
+  "BusinessTravel": "Travel_Rarely",
+  "OverTime": "Yes",
+  "Gender": "Female",
+  "Department": "Research & Development",
+  "EducationField": "Technical Degree",
+  "JobRole": "Laboratory Technician",
+  "MaritalStatus": "Single",
+  "Education": 3,
+  "EnvironmentSatisfaction": 2,
+  "JobInvolvement": 4,
+  "JobSatisfaction": 3,
+  "PerformanceRating": 4,
+  "RelationshipSatisfaction": 3,
+  "StockOptionLevel": 0,
+  "WorkLifeBalance": 1,
+  "employee_id": "EMP-003-BURNOUT"
+}
+```
