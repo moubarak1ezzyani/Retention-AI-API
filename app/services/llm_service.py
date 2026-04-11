@@ -12,27 +12,28 @@ else:
 
 def build_retention_prompt(employee: dict, probability: float) -> str:
     return f"""
-Voici les informations sur l'employé :
-- Âge                        : {employee.get('Age')}
-- Département                : {employee.get('Department')}
-- Rôle                       : {employee.get('JobRole')}
-- Niveau d'éducation         : {employee.get('Education')}
-- Satisfaction au travail    : {employee.get('JobSatisfaction')} / 4
-- Satisfaction environnement : {employee.get('EnvironmentSatisfaction')} / 4
-- Équilibre vie pro/perso    : {employee.get('WorkLifeBalance')} / 4
-- Performance                : {employee.get('PerformanceRating')} / 4
-- Implication au travail     : {employee.get('JobInvolvement')} / 4
-- Heures supplémentaires     : {employee.get('OverTime')}
-- Voyages professionnels     : {employee.get('BusinessTravel')}
-- Années dans l'entreprise   : {employee.get('YearsAtCompany')}
-- Revenu mensuel             : {employee.get('MonthlyIncome')} $
-- Option d'achat d'actions   : {employee.get('StockOptionLevel')} / 3
+Here is the employee information:
+- Age                        : {employee.get('Age')}
+- Department                 : {employee.get('Department')}
+- Role                       : {employee.get('JobRole')}
+- Education Level            : {employee.get('Education')}
+- Job Satisfaction           : {employee.get('JobSatisfaction')} / 4
+- Environment Satisfaction   : {employee.get('EnvironmentSatisfaction')} / 4
+- Work-Life Balance          : {employee.get('WorkLifeBalance')} / 4
+- Performance Rating         : {employee.get('PerformanceRating')} / 4
+- Job Involvement            : {employee.get('JobInvolvement')} / 4
+- Overtime                   : {employee.get('OverTime')}
+- Business Travel            : {employee.get('BusinessTravel')}
+- Years at Company           : {employee.get('YearsAtCompany')}
+- Monthly Income             : ${employee.get('MonthlyIncome')}
+- Stock Option Level         : {employee.get('StockOptionLevel')} / 3
 
-Contexte : ce salarié présente un risque élevé de départ (churn_probability = {probability:.0%}) selon notre modèle prédictif.
+Context: This employee presents a high risk of departure (churn_probability = {probability:.0%}) according to our predictive model.
 
-Tâche : propose EXACTEMENT 3 actions concrètes, personnalisées et opérationnelles pour retenir cet employé. Tiens compte de son rôle, sa satisfaction, sa performance et son équilibre vie professionnelle/personnelle. Rédige chaque action de façon claire en une seule phrase.
+Task: Propose EXACTLY 3 concrete, personalized, and actionable steps to retain this employee. Take into account their role, satisfaction, performance, and work-life balance. Write each action clearly in a single sentence. 
+IMPORTANT: You must write your entire response strictly in English.
 
-Réponds UNIQUEMENT sous ce format JSON (ne génère aucun autre texte) :
+Respond ONLY in this JSON format (do not generate any other text):
 {{
   "retention_plan": [
     "Action 1",
@@ -50,7 +51,7 @@ def generate_plan(employee_dict: dict, probability: float) -> list[str]:
     
     # Format messages for the chat completions API
     messages = [
-        {"role": "system", "content": "Tu es un expert RH senior. Tu dois répondre uniquement avec un objet JSON valide."},
+        {"role": "system", "content": "You are a senior HR expert. You must respond only with a valid JSON object in English."},
         {"role": "user", "content": prompt}
     ]
     
