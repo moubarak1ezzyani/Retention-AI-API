@@ -1,52 +1,56 @@
 version: '3.8'
 
 services:
-  # --- Base de Données
   db:
-    image: postgres:15
+    image: postgres:15-alpine
     container_name: retention_db
+    restart: always
     environment:
-      - POSTGRES_USER=${db_user_env}
-      - POSTGRES_PASSWORD=${db_password_env}
-      - POSTGRES_DB=${db_name_env}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-your_database_password}
+      POSTGRES_DB: ${DB_NAME:-retention_db}
     ports:
       - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin -d retention_db"]
-      interval: 5s
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-retention_db}"]
+      interval: 10s
       timeout: 5s
       retries: 5
 
-  # Backend FastAPI
   backend:
-    build: ./RetentionAI---Pr-dicteur-de-D-part-Assistant-RH-_BackEnd
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: retention_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      # Overriding DB_HOST to use the Docker network service name instead of localhost
+      - DB_HOST=db
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@db:${DB_PORT}/${DB_NAME}
     depends_on:
       db:
         condition: service_healthy
-    environment:
-      - DATABASE_URL=${db_url_env}
-      - SECRET_KEY=${secret_key_env}
-      - GENAI_API_KEY=${genai_api_key_env}
-      - ACCESS_TOKEN_EXPIRE_MINUTES=${access_token_expire_minutes_env}
-    ports:
-      - "8000:8000"
-    volumes:
-      # Permet le hot-reload si vous modifiez le code en local
-      - ./RetentionAI---Pr-dicteur-de-D-part-Assistant-RH-_BackEnd:/app
 
-  # --- Frontend Next.js
   frontend:
-    build: ./RetentionAI---Pr-dicteur-de-D-part-Assistant-RH_Frontend
+    build:
+      context: ../Retention-Decision-Dashboard 
+      dockerfile: Dockerfile
     container_name: retention_frontend
-    depends_on:
-      - backend
-    environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    restart: unless-stopped
     ports:
       - "3000:3000"
+    environment:
+      # So the Next.js client knows how to talk to the backend
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    depends_on:
+      - backend
 
 volumes:
   postgres_data:
+    name: retention_pg_data
